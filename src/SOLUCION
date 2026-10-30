@@ -1,0 +1,13 @@
+Primero declaramos los estados con sealed class, en mi caso puse los estados marcados
+en github. Una vez declarado los estados, paśe a las transiciones y lo que hacía cada una. Por ejemplo
+en mi caso puse una funcion nivel0 y nivel1. Cuando ejecutamos el nivel0, es cuando el nivel_actual que declaré anteriormente,
+se encuentra en el piso 1, y también se encuentre en estado IDLE el ascensor, es decir parado. Una vez que está bajando
+la variable "nivel_actual" pasa a valer 2, que simula el movimiento del ascensor y una vez llegado, se ejecuta la función
+"llegadaDestino", que básicamente su función es que si se encuentra en el estado(currentState) DOWN o UP
+el currentState pasa a ser IDLE y el nivel_actual pasa a ser 1 o 0, si es que estaba subiendo (1) o bajando (0).
+Para el error simulé una avería donde el nivel_actual valía -1, en caso de que el currentState esté en UP o DOWN, el currentState
+pasa a ser estado de "Error". Sin embargo hay un problema es que una vez que está en el estado "Error" automáticamente debe pasar
+a "Idle", para ello implementé la función "reset", que básicamente puse una condición, en el que si el cuurentState = "Error", es decir,
+se encuentra en estado error, pase a estado Idle y su el nivel_actual tenga un valor de "0"
+Para finalizar para saber en que estados estamos en cada transición creé una función "mostrarEstado",
+que printea en texto el "Estado: " + el valor del currentState que tiene en ese preciso instante.

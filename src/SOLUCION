@@ -114,3 +114,20 @@ Con esta implementación se consigue representar el funcionamiento del mecanismo
 Se utilizan una `sealed class` para controlar los estados y un `enum class` para representar los cuatro valores posibles de `nivel_actual`, manteniendo asociados los códigos numéricos indicados en el enunciado.
 
 Además, se implementan las transiciones de subida, bajada, llegada al destino, simulación de averías y reinicio de la máquina.
+
+## Diagrama de estados
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle --> MovingUP: pulsar nivel_1
+    MovingUP --> Idle: llegadaDestino
+
+    Idle --> MovingDOWN: pulsar nivel_0
+    MovingDOWN --> Idle: llegadaDestino
+
+    Idle --> Error: fallo
+    MovingUP --> Error: fallo
+    MovingDOWN --> Error: fallo
+    Error --> Error: reset

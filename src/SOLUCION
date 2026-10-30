@@ -1,13 +1,116 @@
-Primero declaramos los estados con sealed class, en mi caso puse los estados marcados
-en github. Una vez declarado los estados, paśe a las transiciones y lo que hacía cada una. Por ejemplo
-en mi caso puse una funcion nivel0 y nivel1. Cuando ejecutamos el nivel0, es cuando el nivel_actual que declaré anteriormente,
-se encuentra en el piso 1, y también se encuentre en estado IDLE el ascensor, es decir parado. Una vez que está bajando
-la variable "nivel_actual" pasa a valer 2, que simula el movimiento del ascensor y una vez llegado, se ejecuta la función
-"llegadaDestino", que básicamente su función es que si se encuentra en el estado(currentState) DOWN o UP
-el currentState pasa a ser IDLE y el nivel_actual pasa a ser 1 o 0, si es que estaba subiendo (1) o bajando (0).
-Para el error simulé una avería donde el nivel_actual valía -1, en caso de que el currentState esté en UP o DOWN, el currentState
-pasa a ser estado de "Error". Sin embargo hay un problema es que una vez que está en el estado "Error" automáticamente debe pasar
-a "Idle", para ello implementé la función "reset", que básicamente puse una condición, en el que si el cuurentState = "Error", es decir,
-se encuentra en estado error, pase a estado Idle y su el nivel_actual tenga un valor de "0"
-Para finalizar para saber en que estados estamos en cada transición creé una función "mostrarEstado",
-que printea en texto el "Estado: " + el valor del currentState que tiene en ese preciso instante.
+# Solución del ejercicio: Máquina de estados del Halo de Vigo
+
+## 1. Declaración de los estados
+
+Primero declaré los estados de la máquina utilizando una `sealed class` llamada `ElevatorState`.
+
+En ella definí cuatro estados:
+
+- `Idle`: el mecanismo está parado.
+- `MovingUP`: el mecanismo está subiendo.
+- `MovingDOWN`: el mecanismo está bajando.
+- `Error`: se ha producido una avería.
+
+Utilicé `sealed class` porque permite representar un conjunto de estados posibles para la máquina.
+
+## 2. Representación de los niveles
+
+Para representar los niveles utilicé un `enum class` llamado `Nivel`, en lugar de utilizar directamente variables de tipo entero.
+
+Cada elemento del enum tiene asociado un código numérico mediante la propiedad `codigo`.
+
+La correspondencia es la siguiente:
+
+| Nivel | Código | Significado |
+|---|---:|---|
+| `GARCIA_BARBON` | 0 | Avenida García Barbón |
+| `PLAZA_COMPOSTELA` | 1 | Plaza de Compostela |
+| `MOVIMIENTO` | 2 | El mecanismo está en movimiento y no se encuentra en ningún nivel. |
+| `ERROR` | -1 | Se ha producido una avería. |
+
+De esta forma, la variable `nivel_actual` es de tipo `Nivel` y se inicializa con `Nivel.GARCIA_BARBON`, cuyo código asociado es 0.
+
+Así se respetan los valores indicados en el enunciado sin utilizar directamente un entero para almacenar el nivel actual.
+
+## 3. Transiciones de la máquina
+
+Una vez definidos los estados y los niveles, implementé las transiciones mediante diferentes funciones.
+
+### Función `nivel_0()`
+
+Esta función representa el botón para solicitar el nivel 0 (Avenida García Barbón).
+
+Para que se pueda ejecutar, el mecanismo debe encontrarse en estado `Idle` y estar situado en `Nivel.PLAZA_COMPOSTELA`.
+
+Cuando se cumplen estas condiciones:
+
+1. El estado cambia a `MovingDOWN`.
+2. El nivel actual cambia a `Nivel.MOVIMIENTO`, cuyo código asociado es 2.
+3. Se muestra un mensaje indicando que el ascensor está bajando.
+
+### Función `nivel_1()`
+
+Esta función representa el botón para solicitar el nivel 1 (Plaza de Compostela).
+
+Para que se pueda ejecutar, el mecanismo debe encontrarse en estado `Idle` y estar situado en `Nivel.GARCIA_BARBON`.
+
+Cuando se cumplen estas condiciones:
+
+1. El estado cambia a `MovingUP`.
+2. El nivel actual cambia a `Nivel.MOVIMIENTO`, cuyo código asociado es 2.
+3. Se muestra un mensaje indicando que el ascensor está subiendo.
+
+### Función `llegadaDestino()`
+
+Esta función simula la llegada del mecanismo a su destino.
+
+Comprueba el estado actual (`currentState`) mediante un `when`:
+
+- Si se encuentra en `MovingUP`, significa que estaba subiendo. Por tanto, `nivel_actual` pasa a `Nivel.PLAZA_COMPOSTELA` y el estado vuelve a `Idle`.
+- Si se encuentra en `MovingDOWN`, significa que estaba bajando. Por tanto, `nivel_actual` pasa a `Nivel.GARCIA_BARBON` y el estado vuelve a `Idle`.
+
+De esta manera, cuando termina el movimiento, el mecanismo vuelve a estar parado en uno de los dos niveles.
+
+## 4. Gestión de averías y reinicio
+
+### Función `simularError()`
+
+Para simular una avería implementé esta función.
+
+Comprueba si el mecanismo se encuentra en estado `MovingUP` o `MovingDOWN`.
+
+Si se cumple alguna de estas condiciones:
+
+1. El estado cambia a `Error`.
+2. `nivel_actual` pasa a `Nivel.ERROR`, cuyo código asociado es -1.
+3. Se muestra un mensaje indicando que se ha producido una avería.
+
+Así, el mecanismo deja de estar en movimiento y pasa a representar una situación de error.
+
+### Función `reset()`
+
+Cuando la máquina se encuentra en estado `Error`, utilizo esta función para reiniciarla.
+
+Si `currentState` es `Error`:
+
+1. `nivel_actual` vuelve a `Nivel.GARCIA_BARBON`, cuyo código asociado es 0.
+2. `currentState` vuelve a `Idle`.
+3. Se muestra un mensaje indicando que el mecanismo se encuentra parado.
+
+Es importante señalar que el cambio de `Error` a `Idle` no se produce automáticamente: es necesario ejecutar la función `reset()`.
+
+## 5. Mostrar el estado actual
+
+Por último, implementé la función `mostrarEstado()`.
+
+Su finalidad es mostrar por consola el estado actual de la máquina mediante la variable `currentState`.
+
+Esto permite comprobar en qué estado se encuentra el mecanismo durante las diferentes transiciones.
+
+## 6. Conclusión
+
+Con esta implementación se consigue representar el funcionamiento del mecanismo del Halo de Vigo mediante una máquina de estados.
+
+Se utilizan una `sealed class` para controlar los estados y un `enum class` para representar los cuatro valores posibles de `nivel_actual`, manteniendo asociados los códigos numéricos indicados en el enunciado.
+
+Además, se implementan las transiciones de subida, bajada, llegada al destino, simulación de averías y reinicio de la máquina.
